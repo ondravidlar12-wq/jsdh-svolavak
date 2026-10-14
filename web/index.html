@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Velitelský pult - JSDH Svolávač</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #121212; color: white; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .card { background: #1e1e1e; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        input, textarea, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 4px; box-sizing: border-box; background: #2d2d2d; color: white; border: 1px solid #444; }
+        button { background: #d32f2f; color: white; font-weight: bold; border: none; cursor: pointer; }
+        button:hover { background: #b71c1c; }
+        ul { list-style: none; padding: 0; }
+        li { background: #2a2a2a; margin-top: 5px; padding: 10px; border-radius: 4px; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>🚨 Velitelský pult JSDH</h2>
+        
+        <label>PIN velitele:</label>
+        <input type="password" id="pin" placeholder="Zadejte PIN (1234)" maxlength="4">
+
+        <label style="margin-top:15px; display:block;">Text zprávy / SMS výjezdu:</label>
+        <textarea id="alarmText" rows="4">VYJEZD PRO: 1V, RZA, 05.10.2026 15:00:42,DN-VYPR, Podivin, Bratislavska 14; DN ecall bez odezvy</textarea>
+
+        <button onclick="sendAlarm()">VYHLÁSIT POPLACH NA VŠECHNA ZAŘÍZENÍ</button>
+    </div>
+
+    <div class="card" id="responsesCard" style="display:none;">
+        <h3>Přehled odpovědí hasičů:</h3>
+        <ul id="responseList">
+            <li>Čekání na odpovědi...</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Firebase SDK (v8) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyB754CrBWBlvcT9AOSFEY4Z9FgQYQRM",
+        authDomain: "hasici-pokus.firebaseapp.com",
+        projectId: "hasici-pokus",
+        storageBucket: "hasici-pokus.firebasestorage.app",
+        messagingSenderId: "280323705353",
+        appId: "1:280323705353:web:0ba71a9b1108f775bb06d8"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function sendAlarm() {
+        const pin = document.getElementById("pin").value;
+        const text = document.getElementById("alarmText").value;
+
+        if (pin !== "1234") {
+            alert("❌ Nesprávný PIN velitele! Správný PIN je 1234.");
+            return;
+        }
+
+        db.collection("alarmy").add({
+            text: text,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then((docRef) => {
+            alert("🚨 Poplach úspěšně vyhlášen na všechna zařízení!");
+            document.getElementById("responsesCard").style.display = "block";
+            listenToResponses(docRef.id);
+        }).catch((error) => {
+            alert("Chyba při odesílání: " + error);
+            console.error(error);
+        });
+    }
+
+    function listenToResponses(alarmId) {
+        db.collection("alarmy").doc(alarmId).collection("odpovědi")
+            .onSnapshot((snapshot) => {
+                const list = document.getElementById("responseList");
+                list.innerHTML = "";
+                if (snapshot.empty) {
+                    list.innerHTML = "<li>Zatím žádné odpovědi.</li>";
+                    return;
+                }
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const color = data.status.includes("JEDU") ? "lightgreen" : "salmon";
+                    list.innerHTML += `<li><span>${doc.id}</span> <b style="color:${color}">${data.status}</b></li>`;
+                });
+            });
+    }
+</script>
+
+</body>
+</html>
