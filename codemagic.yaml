@@ -7,10 +7,14 @@ workflows:
       flutter: stable
       xcode: latest
     scripts:
-      - name: Instalace závislostí
+      - name: Instalace závislostí Flutteru
         script: flutter pub get
-      - name: Sestavení iOS balíčku (IPA)
+      - name: Sestavení iOS bez podpisu
         script: |
-          flutter build ipa --release --no-codesign
+          flutter build ios --release --no-codesign
+          cd build/ios/iphoneos
+          mkdir Payload
+          mv Runner.app Payload/
+          zip -r app.ipa Payload
     artifacts:
-      - build/ios/ipa/*.ipa
+      - build/ios/iphoneos/app.ipa
