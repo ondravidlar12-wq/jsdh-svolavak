@@ -13,9 +13,9 @@ workflows:
         script: |
           flutter build ios --release --no-codesign
           cd build/ios/iphoneos
-          mkdir Payload
-          mv Runner.app Payload/
-          zip -r app.ipa Payload
-          mv app.ipa $CM_BUILD_DIR/app.ipa
+          mkdir -p Payload
+          cp -r Runner.app Payload/
+          zip -r -q app.ipa Payload
+          cp app.ipa $CM_BUILD_DIR/app.ipa
     artifacts:
-      - "*.ipa"
+      - app.ipa
