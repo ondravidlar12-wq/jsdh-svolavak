@@ -10,11 +10,6 @@ workflows:
     scripts:
       - name: Instalace závislostí Flutteru
         script: flutter pub get
-      - name: Instalace CocoaPods
-        script: |
-          cd ios
-          pod install
-          cd ..
       - name: Sestavení iOS bez podpisu
         script: |
           flutter build ios --release --no-codesign
