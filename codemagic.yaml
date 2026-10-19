@@ -16,5 +16,6 @@ workflows:
           mkdir Payload
           mv Runner.app Payload/
           zip -r app.ipa Payload
+          mv app.ipa $CM_BUILD_DIR/app.ipa
     artifacts:
-      - build/ios/iphoneos/app.ipa
+      - "*.ipa"
