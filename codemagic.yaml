@@ -6,6 +6,7 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
+      cocoapods: default
     scripts:
       - name: Instalace závislostí Flutteru
         script: flutter pub get

@@ -1,31 +1,21 @@
-platform :ios, '15.0'
+platform :ios, '13.0'
 
-ENV['COCOAPODS_DISABLE_STATS'] = '1'
-
-project 'Runner', {
-  'Debug' => :debug,
-  'Profile' => :profile,
-  'Release' => :release,
-}
-
-def flutter_application_path
-  '../..'
-end
-
-load File.expand_path('packages/flutter_tools/bin/podhelper', flutter_application_path)
+# Ignorovat varování závislostí
+platform :ios, '13.0'
+install! 'cocoapods', :deterministic_uuids => false
 
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
-  flutter_install_all_ios_pods flutter_application_path
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
     end
   end
 end
