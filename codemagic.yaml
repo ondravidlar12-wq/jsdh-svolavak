@@ -8,7 +8,7 @@ workflows:
       xcode: latest
       cocoapods: default
     scripts:
-      - name: Príprava balíčků a CocoaPods
+      - name: Instalace balíčků a CocoaPods
         script: |
           flutter pub get
           cd ios
@@ -16,7 +16,7 @@ workflows:
           cd ..
       - name: Sestavení iOS bez podpisu
         script: |
-          flutter build ios --release --no-codesign --verbose
+          flutter build ios --release --no-codesign --no-pub
           cd build/ios/iphoneos
           mkdir -p Payload
           cp -r Runner.app Payload/
